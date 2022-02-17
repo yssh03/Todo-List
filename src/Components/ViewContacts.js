@@ -8,13 +8,31 @@ function ViewContacts() {
   const [data, setData] = useState(
     JSON.parse(localStorage.getItem("contacts"))
   );
+  const [deletedData, setDeletedData] = useState();
+  const [disable, setDisable] = useState(true);
 
   const handleDelete = (id) => {
     const removeContact = data.filter((contact) => {
       return contact.id !== id;
     });
+
+    const deletedContact = data.filter((contact) => {
+      return contact.id === id;
+    });
+
     setData(removeContact);
     localStorage.setItem("contacts", JSON.stringify(removeContact));
+    setDeletedData(deletedContact)
+    localStorage.setItem("deletedContacts", JSON.stringify(deletedContact))
+    setDisable(false)
+  };
+
+  const handleUndo = () => {
+    const allNewData = [...data, ...deletedData]
+    setData(allNewData)
+    localStorage.setItem("contacts", JSON.stringify(allNewData))
+    localStorage.removeItem("deletedContacts")
+    setDisable(true)
   };
 
   return (
@@ -59,6 +77,15 @@ function ViewContacts() {
             <Table.Row>
               <Table.HeaderCell />
               <Table.HeaderCell colSpan="4">
+                <Button
+                  floated="right"
+                  primary
+                  size="small"
+                  onClick={handleUndo}
+                  disabled={disable}
+                >
+                  Undo
+                </Button>
                 <Button
                   floated="right"
                   icon
